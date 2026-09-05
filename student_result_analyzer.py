@@ -35,15 +35,62 @@ def get_student_data():
     return students
 
 
+def calculate_grade(marks):
+    """
+    Convert numeric marks into a letter grade.
+
+    Grading scale:
+        90-100 -> A+
+        80-89  -> A
+        70-79  -> B
+        60-69  -> C
+        50-59  -> D
+        0-49   -> F
+
+    Args:
+        marks (float): marks scored by a student (0-100).
+
+    Returns:
+        str: the letter grade.
+    """
+    if marks >= 90:
+        return "A+"
+    elif marks >= 80:
+        return "A"
+    elif marks >= 70:
+        return "B"
+    elif marks >= 60:
+        return "C"
+    elif marks >= 50:
+        return "D"
+    else:
+        return "F"
+
+
+def assign_grades(students):
+    """
+    Add a 'grade' key to every student dictionary based on their marks.
+
+    Args:
+        students (list of dict): student records with 'name' and 'marks'.
+
+    Returns:
+        list of dict: same students, each now including a 'grade' key.
+    """
+    for student in students:
+        student["grade"] = calculate_grade(student["marks"])
+    return students
+
+
 def display_raw_data(students):
     """
-    Print the collected student data in a simple, readable form.
-    This is just for verifying input at this stage of development —
-    the final formatted report comes in a later commit.
+    Print the collected student data, including grade, in a simple,
+    readable form. The final formatted table comes in a later commit.
     """
     print("\nStudents entered:")
     for index, student in enumerate(students, start=1):
-        print(f"{index}. Name: {student['name']}, Marks: {student['marks']}")
+        print(f"{index}. Name: {student['name']}, "
+              f"Marks: {student['marks']}, Grade: {student['grade']}")
 
 
 def main():
@@ -52,6 +99,7 @@ def main():
     print("=" * 50)
 
     students = get_student_data()
+    students = assign_grades(students)
     display_raw_data(students)
 
 
