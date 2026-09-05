@@ -46,12 +46,6 @@ def calculate_grade(marks):
         60-69  -> C
         50-59  -> D
         0-49   -> F
-
-    Args:
-        marks (float): marks scored by a student (0-100).
-
-    Returns:
-        str: the letter grade.
     """
     if marks >= 90:
         return "A+"
@@ -70,16 +64,53 @@ def calculate_grade(marks):
 def assign_grades(students):
     """
     Add a 'grade' key to every student dictionary based on their marks.
-
-    Args:
-        students (list of dict): student records with 'name' and 'marks'.
-
-    Returns:
-        list of dict: same students, each now including a 'grade' key.
     """
     for student in students:
         student["grade"] = calculate_grade(student["marks"])
     return students
+
+
+def calculate_average(students):
+    """
+    Calculate the average marks of the class, rounded to 2 decimal places.
+
+    Args:
+        students (list of dict): student records.
+
+    Returns:
+        float: class average.
+    """
+    total_marks = sum(student["marks"] for student in students)
+    average = total_marks / len(students)
+    return round(average, 2)
+
+
+def find_highest_scorer(students):
+    """
+    Find the student(s) with the highest marks.
+
+    Handles ties: if multiple students share the highest marks,
+    all of them are returned.
+
+    Returns:
+        list of dict: student(s) with the highest marks.
+    """
+    highest_marks = max(student["marks"] for student in students)
+    return [student for student in students if student["marks"] == highest_marks]
+
+
+def find_lowest_scorer(students):
+    """
+    Find the student(s) with the lowest marks.
+
+    Handles ties: if multiple students share the lowest marks,
+    all of them are returned.
+
+    Returns:
+        list of dict: student(s) with the lowest marks.
+    """
+    lowest_marks = min(student["marks"] for student in students)
+    return [student for student in students if student["marks"] == lowest_marks]
 
 
 def display_raw_data(students):
@@ -93,6 +124,23 @@ def display_raw_data(students):
               f"Marks: {student['marks']}, Grade: {student['grade']}")
 
 
+def display_class_statistics(students):
+    """
+    Print class-level statistics: average, highest scorer(s), lowest scorer(s).
+    """
+    average = calculate_average(students)
+    top_students = find_highest_scorer(students)
+    bottom_students = find_lowest_scorer(students)
+
+    top_names = ", ".join(s["name"] for s in top_students)
+    bottom_names = ", ".join(s["name"] for s in bottom_students)
+
+    print("\n--- Class Statistics ---")
+    print(f"Class Average: {average}")
+    print(f"Highest Scorer: {top_names} ({top_students[0]['marks']})")
+    print(f"Lowest Scorer: {bottom_names} ({bottom_students[0]['marks']})")
+
+
 def main():
     print("=" * 50)
     print("STUDENT RESULT ANALYZER".center(50))
@@ -101,6 +149,7 @@ def main():
     students = get_student_data()
     students = assign_grades(students)
     display_raw_data(students)
+    display_class_statistics(students)
 
 
 if __name__ == "__main__":
