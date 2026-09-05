@@ -10,7 +10,16 @@ def get_student_data():
     """
     Ask the teacher how many students there are, then collect
     each student's name and marks.
-    Returns a list of dictionaries: [{"name": ..., "marks": ...}, ...]
+
+    Data structure used:
+        students = [
+            {"name": "Aman", "marks": 87},
+            {"name": "Riya", "marks": 74},
+            ...
+        ]
+
+    Returns:
+        list of dict: one dictionary per student.
     """
     students = []
 
@@ -26,16 +35,24 @@ def get_student_data():
     return students
 
 
+def display_raw_data(students):
+    """
+    Print the collected student data in a simple, readable form.
+    This is just for verifying input at this stage of development —
+    the final formatted report comes in a later commit.
+    """
+    print("\nStudents entered:")
+    for index, student in enumerate(students, start=1):
+        print(f"{index}. Name: {student['name']}, Marks: {student['marks']}")
+
+
 def main():
     print("=" * 50)
     print("STUDENT RESULT ANALYZER".center(50))
     print("=" * 50)
 
     students = get_student_data()
-
-    print("\nStudents entered so far:")
-    for student in students:
-        print(student)
+    display_raw_data(students)
 
 
 if __name__ == "__main__":
