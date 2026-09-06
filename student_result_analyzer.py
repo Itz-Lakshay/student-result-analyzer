@@ -8,19 +8,80 @@ highest/lowest scorer, and pass/fail statistics.
 PASSING_MARKS = 50
 
 
+def get_valid_number_of_students():
+    """
+    Repeatedly ask for the number of students until a valid
+    positive integer is entered.
+
+    Returns:
+        int: number of students (at least 1).
+    """
+    while True:
+        raw_value = input("Enter number of students: ")
+        try:
+            num_students = int(raw_value)
+            if num_students <= 0:
+                print("Number of students must be a positive whole number. Try again.")
+                continue
+            return num_students
+        except ValueError:
+            print("Invalid input. Please enter a whole number.")
+
+
+def get_valid_name():
+    """
+    Repeatedly ask for a student name until a non-empty value is entered.
+
+    Returns:
+        str: a non-empty student name (whitespace trimmed).
+    """
+    while True:
+        name = input("Enter student name: ").strip()
+        if name == "":
+            print("Name cannot be empty. Please try again.")
+            continue
+        return name
+
+
+def get_valid_marks():
+    """
+    Repeatedly ask for marks until a valid number between 0 and 100
+    is entered.
+
+    Returns:
+        float: marks between 0 and 100 (inclusive).
+    """
+    while True:
+        raw_value = input("Enter marks: ")
+        try:
+            marks = float(raw_value)
+        except ValueError:
+            print("Invalid input. Marks must be numeric. Try again.")
+            continue
+
+        if marks < 0 or marks > 100:
+            print("Marks must be between 0 and 100. Try again.")
+            continue
+
+        return marks
+
+
 def get_student_data():
     """
     Ask the teacher how many students there are, then collect
-    each student's name and marks.
+    each student's name and marks, validating every input.
+
+    Returns:
+        list of dict: one dictionary per student.
     """
     students = []
 
-    num_students = int(input("Enter number of students: "))
+    num_students = get_valid_number_of_students()
 
     for i in range(num_students):
         print(f"\n--- Student {i + 1} ---")
-        name = input("Enter student name: ")
-        marks = float(input("Enter marks: "))
+        name = get_valid_name()
+        marks = get_valid_marks()
 
         students.append({"name": name, "marks": marks})
 
@@ -118,9 +179,6 @@ def calculate_pass_fail(students):
 def display_results_table(students):
     """
     Print a clean, aligned table of every student's result.
-
-    Uses Python's string formatting (f-strings with width specifiers)
-    to keep columns aligned regardless of name length.
     """
     print(f"\n{'Name':<15}{'Marks':<10}{'Grade':<10}{'Status':<10}")
     print("-" * 45)
@@ -157,7 +215,7 @@ def display_class_statistics(students):
 def generate_report(students):
     """
     Print the complete, formatted result report: header, results table,
-    and class statistics, in the final presentation format.
+    and class statistics.
     """
     print("=" * 50)
     print("STUDENT RESULT ANALYZER".center(50))
