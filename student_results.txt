@@ -4,17 +4,17 @@
 
 Name           Marks     Grade     Status    
 ---------------------------------------------
-riya           89.0      A         PASS      
-rakesh         99.0      A+        PASS      
-ramesh         56.0      D         PASS      
-sukriti        87.0      A         PASS      
-sahil          95.0      A+        PASS      
+harpreet       90.0      A+        PASS      
+manjeet        87.0      A         PASS      
+sukriti        83.0      A         PASS      
+pradeep        35.0      F         FAIL      
+himanshu       100.0     A+        PASS      
 ---------------------------------------------
-Class Average: 85.2
-Highest Scorer: rakesh (99.0)
-Lowest Scorer: ramesh (56.0)
-Passed: 5
-Failed: 0
-Pass Percentage: 100.0%
-Fail Percentage: 0.0%
+Class Average: 79.0
+Highest Scorer: himanshu (100.0)
+Lowest Scorer: pradeep (35.0)
+Passed: 4
+Failed: 1
+Pass Percentage: 80.0%
+Fail Percentage: 20.0%
 ==================================================

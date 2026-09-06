@@ -1,5 +1,12 @@
 import csv
 
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+
 """
 Student Result Analyzer
 
@@ -260,6 +267,93 @@ def save_to_csv(students, filename="student_results.csv"):
     print(f"Report saved to {filename}")
 
 
+def generate_pdf(students, filename="student_results.pdf"):
+    """
+    Generate a clean, professional PDF report containing the
+    student result table and class statistics.
+
+    Args:
+        students (list of dict): student records with name, marks,
+            grade, status.
+        filename (str): output PDF file name.
+    """
+    average = calculate_average(students)
+    top_students = find_highest_scorer(students)
+    bottom_students = find_lowest_scorer(students)
+    pass_fail = calculate_pass_fail(students)
+
+    top_names = ", ".join(s["name"] for s in top_students)
+    bottom_names = ", ".join(s["name"] for s in bottom_students)
+
+    doc = SimpleDocTemplate(filename, pagesize=A4,
+                             topMargin=2 * cm, bottomMargin=2 * cm)
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        "TitleStyle",
+        parent=styles["Heading1"],
+        alignment=TA_CENTER,
+        spaceAfter=20,
+    )
+
+    elements = []
+
+    # Title
+    elements.append(Paragraph("STUDENT RESULT ANALYZER", title_style))
+    elements.append(Spacer(1, 12))
+
+    # Student result table
+    table_data = [["Name", "Marks", "Grade", "Status"]]
+    for student in students:
+        table_data.append([
+            student["name"],
+            student["marks"],
+            student["grade"],
+            student["status"],
+        ])
+
+    student_table = Table(table_data, colWidths=[6 * cm, 3 * cm, 3 * cm, 3 * cm])
+    student_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2C3E50")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+
+    elements.append(student_table)
+    elements.append(Spacer(1, 24))
+
+    # Class statistics
+    stats_heading_style = ParagraphStyle(
+        "StatsHeading",
+        parent=styles["Heading2"],
+        spaceAfter=10,
+    )
+    elements.append(Paragraph("Class Statistics", stats_heading_style))
+
+    stats_lines = [
+        f"Class Average: {average}",
+        f"Highest Scorer: {top_names} ({top_students[0]['marks']})",
+        f"Lowest Scorer: {bottom_names} ({bottom_students[0]['marks']})",
+        f"Passed: {pass_fail['passed']}",
+        f"Failed: {pass_fail['failed']}",
+        f"Pass Percentage: {pass_fail['pass_percentage']}%",
+        f"Fail Percentage: {pass_fail['fail_percentage']}%",
+    ]
+
+    for line in stats_lines:
+        elements.append(Paragraph(line, styles["Normal"]))
+        elements.append(Spacer(1, 6))
+
+    doc.build(elements)
+    print(f"Report saved to {filename}")
+
+
 def main():
     students = get_student_data()
     students = assign_grades(students)
@@ -269,6 +363,7 @@ def main():
     display_report(report_lines)
     save_to_txt(report_lines)
     save_to_csv(students)
+    generate_pdf(students)
 
 
 if __name__ == "__main__":
