@@ -5,6 +5,8 @@ A program to analyze class results: grades, averages,
 highest/lowest scorer, and pass/fail statistics.
 """
 
+PASSING_MARKS = 50
+
 
 def get_student_data():
     """
@@ -17,9 +19,6 @@ def get_student_data():
             {"name": "Riya", "marks": 74},
             ...
         ]
-
-    Returns:
-        list of dict: one dictionary per student.
     """
     students = []
 
@@ -70,15 +69,19 @@ def assign_grades(students):
     return students
 
 
+def assign_status(students):
+    """
+    Add a 'status' key ('PASS' or 'FAIL') to every student dictionary,
+    based on the passing marks threshold.
+    """
+    for student in students:
+        student["status"] = "PASS" if student["marks"] >= PASSING_MARKS else "FAIL"
+    return students
+
+
 def calculate_average(students):
     """
     Calculate the average marks of the class, rounded to 2 decimal places.
-
-    Args:
-        students (list of dict): student records.
-
-    Returns:
-        float: class average.
     """
     total_marks = sum(student["marks"] for student in students)
     average = total_marks / len(students)
@@ -87,13 +90,7 @@ def calculate_average(students):
 
 def find_highest_scorer(students):
     """
-    Find the student(s) with the highest marks.
-
-    Handles ties: if multiple students share the highest marks,
-    all of them are returned.
-
-    Returns:
-        list of dict: student(s) with the highest marks.
+    Find the student(s) with the highest marks. Handles ties.
     """
     highest_marks = max(student["marks"] for student in students)
     return [student for student in students if student["marks"] == highest_marks]
@@ -101,36 +98,60 @@ def find_highest_scorer(students):
 
 def find_lowest_scorer(students):
     """
-    Find the student(s) with the lowest marks.
-
-    Handles ties: if multiple students share the lowest marks,
-    all of them are returned.
-
-    Returns:
-        list of dict: student(s) with the lowest marks.
+    Find the student(s) with the lowest marks. Handles ties.
     """
     lowest_marks = min(student["marks"] for student in students)
     return [student for student in students if student["marks"] == lowest_marks]
 
 
+def calculate_pass_fail(students):
+    """
+    Calculate class-wide pass/fail counts and percentages.
+
+    Returns:
+        dict: {
+            "passed": int,
+            "failed": int,
+            "pass_percentage": float,
+            "fail_percentage": float
+        }
+    """
+    total = len(students)
+    passed = sum(1 for student in students if student["status"] == "PASS")
+    failed = total - passed
+
+    pass_percentage = round((passed / total) * 100, 2)
+    fail_percentage = round((failed / total) * 100, 2)
+
+    return {
+        "passed": passed,
+        "failed": failed,
+        "pass_percentage": pass_percentage,
+        "fail_percentage": fail_percentage,
+    }
+
+
 def display_raw_data(students):
     """
-    Print the collected student data, including grade, in a simple,
-    readable form. The final formatted table comes in a later commit.
+    Print the collected student data, including grade and status.
+    The final formatted table comes in a later commit.
     """
     print("\nStudents entered:")
     for index, student in enumerate(students, start=1):
         print(f"{index}. Name: {student['name']}, "
-              f"Marks: {student['marks']}, Grade: {student['grade']}")
+              f"Marks: {student['marks']}, Grade: {student['grade']}, "
+              f"Status: {student['status']}")
 
 
 def display_class_statistics(students):
     """
-    Print class-level statistics: average, highest scorer(s), lowest scorer(s).
+    Print class-level statistics: average, highest/lowest scorer,
+    and pass/fail breakdown.
     """
     average = calculate_average(students)
     top_students = find_highest_scorer(students)
     bottom_students = find_lowest_scorer(students)
+    pass_fail = calculate_pass_fail(students)
 
     top_names = ", ".join(s["name"] for s in top_students)
     bottom_names = ", ".join(s["name"] for s in bottom_students)
@@ -139,6 +160,10 @@ def display_class_statistics(students):
     print(f"Class Average: {average}")
     print(f"Highest Scorer: {top_names} ({top_students[0]['marks']})")
     print(f"Lowest Scorer: {bottom_names} ({bottom_students[0]['marks']})")
+    print(f"Passed: {pass_fail['passed']}")
+    print(f"Failed: {pass_fail['failed']}")
+    print(f"Pass Percentage: {pass_fail['pass_percentage']}%")
+    print(f"Fail Percentage: {pass_fail['fail_percentage']}%")
 
 
 def main():
@@ -148,6 +173,7 @@ def main():
 
     students = get_student_data()
     students = assign_grades(students)
+    students = assign_status(students)
     display_raw_data(students)
     display_class_statistics(students)
 
