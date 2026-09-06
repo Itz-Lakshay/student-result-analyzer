@@ -12,9 +12,6 @@ def get_valid_number_of_students():
     """
     Repeatedly ask for the number of students until a valid
     positive integer is entered.
-
-    Returns:
-        int: number of students (at least 1).
     """
     while True:
         raw_value = input("Enter number of students: ")
@@ -31,9 +28,6 @@ def get_valid_number_of_students():
 def get_valid_name():
     """
     Repeatedly ask for a student name until a non-empty value is entered.
-
-    Returns:
-        str: a non-empty student name (whitespace trimmed).
     """
     while True:
         name = input("Enter student name: ").strip()
@@ -47,9 +41,6 @@ def get_valid_marks():
     """
     Repeatedly ask for marks until a valid number between 0 and 100
     is entered.
-
-    Returns:
-        float: marks between 0 and 100 (inclusive).
     """
     while True:
         raw_value = input("Enter marks: ")
@@ -70,9 +61,6 @@ def get_student_data():
     """
     Ask the teacher how many students there are, then collect
     each student's name and marks, validating every input.
-
-    Returns:
-        list of dict: one dictionary per student.
     """
     students = []
 
@@ -176,24 +164,17 @@ def calculate_pass_fail(students):
     }
 
 
-def display_results_table(students):
+def build_report_lines(students):
     """
-    Print a clean, aligned table of every student's result.
-    """
-    print(f"\n{'Name':<15}{'Marks':<10}{'Grade':<10}{'Status':<10}")
-    print("-" * 45)
+    Build the full report as a list of text lines (no printing here).
 
-    for student in students:
-        print(f"{student['name']:<15}{student['marks']:<10}"
-              f"{student['grade']:<10}{student['status']:<10}")
+    This is the key idea behind this commit: the report's *content*
+    is generated once, as plain strings, so it can be reused for
+    the terminal, the TXT file, and later the PDF — without
+    duplicating the formatting logic in three places.
 
-    print("-" * 45)
-
-
-def display_class_statistics(students):
-    """
-    Print class-level statistics: average, highest/lowest scorer,
-    and pass/fail breakdown.
+    Returns:
+        list of str: each item is one line of the report.
     """
     average = calculate_average(students)
     top_students = find_highest_scorer(students)
@@ -203,35 +184,61 @@ def display_class_statistics(students):
     top_names = ", ".join(s["name"] for s in top_students)
     bottom_names = ", ".join(s["name"] for s in bottom_students)
 
-    print(f"Class Average: {average}")
-    print(f"Highest Scorer: {top_names} ({top_students[0]['marks']})")
-    print(f"Lowest Scorer: {bottom_names} ({bottom_students[0]['marks']})")
-    print(f"Passed: {pass_fail['passed']}")
-    print(f"Failed: {pass_fail['failed']}")
-    print(f"Pass Percentage: {pass_fail['pass_percentage']}%")
-    print(f"Fail Percentage: {pass_fail['fail_percentage']}%")
+    lines = []
+    lines.append("=" * 50)
+    lines.append("STUDENT RESULT ANALYZER".center(50))
+    lines.append("=" * 50)
+    lines.append("")
+    lines.append(f"{'Name':<15}{'Marks':<10}{'Grade':<10}{'Status':<10}")
+    lines.append("-" * 45)
+
+    for student in students:
+        lines.append(f"{student['name']:<15}{student['marks']:<10}"
+                      f"{student['grade']:<10}{student['status']:<10}")
+
+    lines.append("-" * 45)
+    lines.append(f"Class Average: {average}")
+    lines.append(f"Highest Scorer: {top_names} ({top_students[0]['marks']})")
+    lines.append(f"Lowest Scorer: {bottom_names} ({bottom_students[0]['marks']})")
+    lines.append(f"Passed: {pass_fail['passed']}")
+    lines.append(f"Failed: {pass_fail['failed']}")
+    lines.append(f"Pass Percentage: {pass_fail['pass_percentage']}%")
+    lines.append(f"Fail Percentage: {pass_fail['fail_percentage']}%")
+    lines.append("=" * 50)
+
+    return lines
 
 
-def generate_report(students):
+def display_report(report_lines):
     """
-    Print the complete, formatted result report: header, results table,
-    and class statistics.
+    Print the report lines to the terminal.
     """
-    print("=" * 50)
-    print("STUDENT RESULT ANALYZER".center(50))
-    print("=" * 50)
+    for line in report_lines:
+        print(line)
 
-    display_results_table(students)
-    display_class_statistics(students)
 
-    print("=" * 50)
+def save_to_txt(report_lines, filename="student_results.txt"):
+    """
+    Save the report lines to a plain text file.
+
+    Args:
+        report_lines (list of str): the report content, one line per item.
+        filename (str): output file name.
+    """
+    with open(filename, "w") as file:
+        for line in report_lines:
+            file.write(line + "\n")
+    print(f"\nReport saved to {filename}")
 
 
 def main():
     students = get_student_data()
     students = assign_grades(students)
     students = assign_status(students)
-    generate_report(students)
+
+    report_lines = build_report_lines(students)
+    display_report(report_lines)
+    save_to_txt(report_lines)
 
 
 if __name__ == "__main__":
