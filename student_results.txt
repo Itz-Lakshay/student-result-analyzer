@@ -4,17 +4,17 @@
 
 Name           Marks     Grade     Status    
 ---------------------------------------------
-riya           97.0      A+        PASS      
-lakshay        100.0     A+        PASS      
-sakshar        85.0      A         PASS      
-priya          82.0      A         PASS      
-kritika        45.0      F         FAIL      
+riya           89.0      A         PASS      
+rakesh         99.0      A+        PASS      
+ramesh         56.0      D         PASS      
+sukriti        87.0      A         PASS      
+sahil          95.0      A+        PASS      
 ---------------------------------------------
-Class Average: 81.8
-Highest Scorer: lakshay (100.0)
-Lowest Scorer: kritika (45.0)
-Passed: 4
-Failed: 1
-Pass Percentage: 80.0%
-Fail Percentage: 20.0%
+Class Average: 85.2
+Highest Scorer: rakesh (99.0)
+Lowest Scorer: ramesh (56.0)
+Passed: 5
+Failed: 0
+Pass Percentage: 100.0%
+Fail Percentage: 0.0%
 ==================================================

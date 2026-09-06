@@ -1,3 +1,5 @@
+import csv
+
 """
 Student Result Analyzer
 
@@ -220,15 +222,42 @@ def display_report(report_lines):
 def save_to_txt(report_lines, filename="student_results.txt"):
     """
     Save the report lines to a plain text file.
-
-    Args:
-        report_lines (list of str): the report content, one line per item.
-        filename (str): output file name.
     """
     with open(filename, "w") as file:
         for line in report_lines:
             file.write(line + "\n")
-    print(f"\nReport saved to {filename}")
+    print(f"Report saved to {filename}")
+
+
+def save_to_csv(students, filename="student_results.csv"):
+    """
+    Save student-wise results to a CSV file.
+
+    Format:
+        Name,Marks,Grade,Status
+        Aman,87.0,A,PASS
+        Riya,74.0,B,PASS
+        ...
+
+    Args:
+        students (list of dict): student records, each with
+            'name', 'marks', 'grade', 'status'.
+        filename (str): output file name.
+    """
+    with open(filename, "w", newline="") as file:
+        writer = csv.writer(file)
+
+        writer.writerow(["Name", "Marks", "Grade", "Status"])
+
+        for student in students:
+            writer.writerow([
+                student["name"],
+                student["marks"],
+                student["grade"],
+                student["status"],
+            ])
+
+    print(f"Report saved to {filename}")
 
 
 def main():
@@ -239,6 +268,7 @@ def main():
     report_lines = build_report_lines(students)
     display_report(report_lines)
     save_to_txt(report_lines)
+    save_to_csv(students)
 
 
 if __name__ == "__main__":
