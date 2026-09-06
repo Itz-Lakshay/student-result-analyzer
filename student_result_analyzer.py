@@ -1,5 +1,20 @@
-import csv
+"""
+Student Result Analyzer
+------------------------
+A command-line program that analyzes a class's exam results.
 
+Features:
+- Collects student names and marks with input validation
+- Calculates grades based on a fixed grading scale
+- Computes class average, highest/lowest scorer (with tie handling)
+- Computes pass/fail counts and percentages
+- Displays a formatted result table in the terminal
+- Exports results to TXT, CSV, and PDF formats
+
+Author: Lakshay Arora
+"""
+
+import csv
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import cm
@@ -7,15 +22,11 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 
-"""
-Student Result Analyzer
-
-A program to analyze class results: grades, averages,
-highest/lowest scorer, and pass/fail statistics.
-"""
 
 PASSING_MARKS = 50
 
+
+# ---------- Input Collection ----------
 
 def get_valid_number_of_students():
     """
@@ -72,18 +83,18 @@ def get_student_data():
     each student's name and marks, validating every input.
     """
     students = []
-
     num_students = get_valid_number_of_students()
 
     for i in range(num_students):
         print(f"\n--- Student {i + 1} ---")
         name = get_valid_name()
         marks = get_valid_marks()
-
         students.append({"name": name, "marks": marks})
 
     return students
 
+
+# ---------- Grade & Status Calculation ----------
 
 def calculate_grade(marks):
     """
@@ -112,78 +123,59 @@ def calculate_grade(marks):
 
 
 def assign_grades(students):
-    """
-    Add a 'grade' key to every student dictionary based on their marks.
-    """
+    """Add a 'grade' key to every student dictionary based on their marks."""
     for student in students:
         student["grade"] = calculate_grade(student["marks"])
     return students
 
 
 def assign_status(students):
-    """
-    Add a 'status' key ('PASS' or 'FAIL') to every student dictionary.
-    """
+    """Add a 'status' key ('PASS' or 'FAIL') to every student dictionary."""
     for student in students:
         student["status"] = "PASS" if student["marks"] >= PASSING_MARKS else "FAIL"
     return students
 
 
+# ---------- Class Statistics ----------
+
 def calculate_average(students):
-    """
-    Calculate the average marks of the class, rounded to 2 decimal places.
-    """
+    """Calculate the average marks of the class, rounded to 2 decimal places."""
     total_marks = sum(student["marks"] for student in students)
-    average = total_marks / len(students)
-    return round(average, 2)
+    return round(total_marks / len(students), 2)
 
 
 def find_highest_scorer(students):
-    """
-    Find the student(s) with the highest marks. Handles ties.
-    """
+    """Find the student(s) with the highest marks. Handles ties."""
     highest_marks = max(student["marks"] for student in students)
     return [student for student in students if student["marks"] == highest_marks]
 
 
 def find_lowest_scorer(students):
-    """
-    Find the student(s) with the lowest marks. Handles ties.
-    """
+    """Find the student(s) with the lowest marks. Handles ties."""
     lowest_marks = min(student["marks"] for student in students)
     return [student for student in students if student["marks"] == lowest_marks]
 
 
 def calculate_pass_fail(students):
-    """
-    Calculate class-wide pass/fail counts and percentages.
-    """
+    """Calculate class-wide pass/fail counts and percentages."""
     total = len(students)
     passed = sum(1 for student in students if student["status"] == "PASS")
     failed = total - passed
 
-    pass_percentage = round((passed / total) * 100, 2)
-    fail_percentage = round((failed / total) * 100, 2)
-
     return {
         "passed": passed,
         "failed": failed,
-        "pass_percentage": pass_percentage,
-        "fail_percentage": fail_percentage,
+        "pass_percentage": round((passed / total) * 100, 2),
+        "fail_percentage": round((failed / total) * 100, 2),
     }
 
 
+# ---------- Report Building & Display ----------
+
 def build_report_lines(students):
     """
-    Build the full report as a list of text lines (no printing here).
-
-    This is the key idea behind this commit: the report's *content*
-    is generated once, as plain strings, so it can be reused for
-    the terminal, the TXT file, and later the PDF — without
-    duplicating the formatting logic in three places.
-
-    Returns:
-        list of str: each item is one line of the report.
+    Build the full report as a list of text lines. Used for both
+    terminal display and the TXT export, so both stay in sync.
     """
     average = calculate_average(students)
     top_students = find_highest_scorer(students)
@@ -219,17 +211,15 @@ def build_report_lines(students):
 
 
 def display_report(report_lines):
-    """
-    Print the report lines to the terminal.
-    """
+    """Print the report lines to the terminal."""
     for line in report_lines:
         print(line)
 
 
+# ---------- File Exports ----------
+
 def save_to_txt(report_lines, filename="student_results.txt"):
-    """
-    Save the report lines to a plain text file.
-    """
+    """Save the report lines to a plain text file."""
     with open(filename, "w") as file:
         for line in report_lines:
             file.write(line + "\n")
@@ -237,46 +227,20 @@ def save_to_txt(report_lines, filename="student_results.txt"):
 
 
 def save_to_csv(students, filename="student_results.csv"):
-    """
-    Save student-wise results to a CSV file.
-
-    Format:
-        Name,Marks,Grade,Status
-        Aman,87.0,A,PASS
-        Riya,74.0,B,PASS
-        ...
-
-    Args:
-        students (list of dict): student records, each with
-            'name', 'marks', 'grade', 'status'.
-        filename (str): output file name.
-    """
+    """Save student-wise results to a CSV file."""
     with open(filename, "w", newline="") as file:
         writer = csv.writer(file)
-
         writer.writerow(["Name", "Marks", "Grade", "Status"])
-
         for student in students:
             writer.writerow([
-                student["name"],
-                student["marks"],
-                student["grade"],
-                student["status"],
+                student["name"], student["marks"],
+                student["grade"], student["status"],
             ])
-
     print(f"Report saved to {filename}")
 
 
 def generate_pdf(students, filename="student_results.pdf"):
-    """
-    Generate a clean, professional PDF report containing the
-    student result table and class statistics.
-
-    Args:
-        students (list of dict): student records with name, marks,
-            grade, status.
-        filename (str): output PDF file name.
-    """
+    """Generate a clean, professional PDF report of the results."""
     average = calculate_average(students)
     top_students = find_highest_scorer(students)
     bottom_students = find_lowest_scorer(students)
@@ -290,26 +254,17 @@ def generate_pdf(students, filename="student_results.pdf"):
     styles = getSampleStyleSheet()
 
     title_style = ParagraphStyle(
-        "TitleStyle",
-        parent=styles["Heading1"],
-        alignment=TA_CENTER,
-        spaceAfter=20,
+        "TitleStyle", parent=styles["Heading1"],
+        alignment=TA_CENTER, spaceAfter=20,
     )
 
-    elements = []
+    elements = [Paragraph("STUDENT RESULT ANALYZER", title_style), Spacer(1, 12)]
 
-    # Title
-    elements.append(Paragraph("STUDENT RESULT ANALYZER", title_style))
-    elements.append(Spacer(1, 12))
-
-    # Student result table
     table_data = [["Name", "Marks", "Grade", "Status"]]
     for student in students:
         table_data.append([
-            student["name"],
-            student["marks"],
-            student["grade"],
-            student["status"],
+            student["name"], student["marks"],
+            student["grade"], student["status"],
         ])
 
     student_table = Table(table_data, colWidths=[6 * cm, 3 * cm, 3 * cm, 3 * cm])
@@ -328,11 +283,8 @@ def generate_pdf(students, filename="student_results.pdf"):
     elements.append(student_table)
     elements.append(Spacer(1, 24))
 
-    # Class statistics
     stats_heading_style = ParagraphStyle(
-        "StatsHeading",
-        parent=styles["Heading2"],
-        spaceAfter=10,
+        "StatsHeading", parent=styles["Heading2"], spaceAfter=10,
     )
     elements.append(Paragraph("Class Statistics", stats_heading_style))
 
@@ -354,7 +306,13 @@ def generate_pdf(students, filename="student_results.pdf"):
     print(f"Report saved to {filename}")
 
 
+# ---------- Main ----------
+
 def main():
+    """
+    Program entry point: collects student data, processes it,
+    displays the report, and exports it to TXT, CSV, and PDF.
+    """
     students = get_student_data()
     students = assign_grades(students)
     students = assign_status(students)
